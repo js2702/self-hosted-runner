@@ -2,31 +2,32 @@ FROM ubuntu:20.04
 
 ARG RUNNER_VERSION="2.317.0"
 ARG DEBIAN_FRONTEND=noninteractive
+ARG TARGETARCH
 
-# Update and upgrade the system
-RUN apt update -y && apt upgrade -y
+RUN apt-get update -y && apt-get upgrade -y && \
+    apt-get install -y --no-install-recommends \
+    curl build-essential libssl-dev libffi-dev python3 python3-venv python3-dev python3-pip jq ssh && \
+    rm -rf /var/lib/apt/lists/*
 
-# Add a user named docker
 RUN useradd -m docker
 
-# Install necessary packages
-RUN apt install -y --no-install-recommends \
-    curl build-essential libssl-dev libffi-dev python3 python3-venv python3-dev python3-pip jq
-RUN apt-get -yqq install ssh
-# Set up the actions runner
-RUN cd /home/docker && mkdir actions-runner && cd actions-runner \
-    && curl -o actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz \
-    && tar xzf actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz
+RUN cd /home/docker && mkdir -p actions-runner && cd actions-runner && \
+    case "${TARGETARCH}" in \
+      amd64) RUNNER_ARCH="x64" ;; \
+      arm64) RUNNER_ARCH="arm64" ;; \
+      *) echo "Unsupported architecture: ${TARGETARCH}" && exit 1 ;; \
+    esac && \
+    curl -fsSL -o actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz \
+      https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz && \
+    tar xzf actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz && \
+    rm actions-runner-linux-${RUNNER_ARCH}-${RUNNER_VERSION}.tar.gz
 
-# Change ownership to docker user and install dependencies
-RUN chown -R docker /home/docker && /home/docker/actions-runner/bin/installdependencies.sh
+RUN chown -R docker:docker /home/docker && \
+    /home/docker/actions-runner/bin/installdependencies.sh
 
-# Copy the start script and make it executable
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-# Switch to docker user
 USER docker
 
-# Define the entrypoint
 ENTRYPOINT ["/start.sh"]

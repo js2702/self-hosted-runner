@@ -1,13 +1,11 @@
-version: '3.8'
-
 services:
   runner:
-    image: js2702/github-actions:latest # You can use this image or build your own
+    image: ghcr.io/js2702/self-hosted-runner:latest
     restart: always
     environment:
-      - REPO=<owner>/<repo>
-      - REG_TOKEN=<reg-token-for-self-hosted-runner>
-      - NAME=<runner-name>
+      - REPO=${REPO:?set REPO}
+      - REG_TOKEN=${REG_TOKEN:?set REG_TOKEN}
+      - NAME=${NAME:-self-hosted-runner}
     deploy:
       mode: replicated
       replicas: 2
