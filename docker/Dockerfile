@@ -15,8 +15,8 @@ RUN apt install -y --no-install-recommends \
 RUN apt-get -yqq install ssh
 # Set up the actions runner
 RUN cd /home/docker && mkdir actions-runner && cd actions-runner \
-    && curl -o actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz \
-    && tar xzf actions-runner-linux-x64-${RUNNER_VERSION}.tar.gz
+    && curl -o actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz -L https://github.com/actions/runner/releases/download/v${RUNNER_VERSION}/actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz \
+    && tar xzf actions-runner-linux-arm64-${RUNNER_VERSION}.tar.gz
 
 # Change ownership to docker user and install dependencies
 RUN chown -R docker /home/docker && /home/docker/actions-runner/bin/installdependencies.sh
