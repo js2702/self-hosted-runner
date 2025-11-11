@@ -19,8 +19,8 @@ RUN install -m 0755 -d /etc/apt/keyrings && \
     apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && \
     rm -rf /var/lib/apt/lists/*
 
-RUN useradd -m docker
-RUN usermod -aG docker docker
+RUN if ! id -u docker >/dev/null 2>&1; then useradd -m -g docker docker; fi && \
+    usermod -aG docker docker
 
 RUN cd /home/docker && mkdir -p actions-runner && cd actions-runner && \
     case "${TARGETARCH}" in \
