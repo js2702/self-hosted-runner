@@ -11,15 +11,8 @@ RUN apt-get update -y && apt-get upgrade -y && \
     libcairo2-dev libpango1.0-dev libjpeg-dev libgif-dev librsvg2-dev && \
     rm -rf /var/lib/apt/lists/*
 
-RUN install -m 0755 -d /etc/apt/keyrings && \
-    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg && \
-    chmod a+r /etc/apt/keyrings/docker.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" > /etc/apt/sources.list.d/docker.list && \
-    apt-get update && \
-    apt-get install -y --no-install-recommends docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin && \
-    rm -rf /var/lib/apt/lists/*
-
-RUN if ! id -u docker >/dev/null 2>&1; then useradd -m -g docker docker; fi && \
+RUN if ! getent group docker >/dev/null 2>&1; then groupadd docker; fi && \
+    if ! id -u docker >/dev/null 2>&1; then useradd -m -g docker docker; fi && \
     usermod -aG docker docker
 
 RUN cd /home/docker && mkdir -p actions-runner && cd actions-runner && \
