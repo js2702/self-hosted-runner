@@ -39,6 +39,4 @@ RUN chown -R docker:docker /home/docker && \
 COPY start.sh /start.sh
 RUN chmod +x /start.sh
 
-USER docker
-
 ENTRYPOINT ["/start.sh"]
