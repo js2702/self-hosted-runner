@@ -40,6 +40,7 @@ Welcome to the GitHub Self-Hosted Runner Dockerization repository. This project 
    ```sh
    docker-compose up -d
    ```
+   > **Note:** The Linux Compose service runs in privileged mode (with an isolated `/var/lib/docker` volume) so the embedded Docker daemon can manage iptables and networking. Without these privileges you will see errors such as `failed to create NAT chain DOCKER: iptables... Permission denied`.
 
 ### Using Docker Compose on macOS
 
